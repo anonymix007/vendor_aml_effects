@@ -8,5 +8,47 @@ cc_library_shared {
         "libbinder_ndk",
         "liblog",
     ],
-    installable: false,
+}
+
+cc_binary {
+    name: "vendor.aml.effect-service",
+    defaults: [
+        "latest_android_hardware_audio_common_ndk_shared",
+        "latest_android_media_audio_common_types_ndk_shared",
+        "latest_android_hardware_audio_effect_ndk_shared",
+    ],
+    relative_install_path: "hw",
+    vendor: true,
+    static_libs: [
+        "libaudio_aidl_conversion_common_ndk",
+        "libaudioaidlcommon",
+        "libaudioutils",
+        "libtinyxml2",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "libcutils",
+        "libfmq",
+        "liblog",
+        "android.hardware.common.fmq-V1-ndk",
+    ],
+    header_libs: [
+        "libaudioaidl_headers",
+        "libaudio_system_headers",
+        "libsystem_headers",
+    ],
+    local_include_dirs: ["include"],
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wthread-safety",
+        "-DBACKEND_NDK",
+    ],
+    srcs: [
+        "EffectConfig.cpp",
+        "EffectFactory.cpp",
+        "EffectMain.cpp",
+    ],
 }
