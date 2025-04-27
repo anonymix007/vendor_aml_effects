@@ -1,0 +1,12 @@
+cc_library_shared {
+    name: "aml",
+    vendor: true,
+    srcs: [
+        "aml.cpp"
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "liblog",
+    ],
+    installable: false,
+}
