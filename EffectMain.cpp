@@ -34,6 +34,13 @@ extern "C" void AIBinder_forceDowngradeToSystemStability(AIBinder* binder);
 /** Default name of effect configuration file. */
 static const char* kDefaultConfigName = "audio_effects_config.xml";
 
+static void OnDeath(void* cookie) {
+    auto *intf = static_cast<std::string *>(cookie);
+    LOG(ERROR) << __func__ << ": interface " << *intf << " died, exiting...";
+    delete intf;
+    exit(EXIT_FAILURE);
+}
+
 int main(int argc, const char **argv) {
     // This is a debug implementation, always enable debug logging.
     android::base::SetMinimumLogSeverity(::android::base::DEBUG);
@@ -63,6 +70,11 @@ int main(int argc, const char **argv) {
     LOG(DEBUG) << __func__ << ": start factory with impl instance: " << implInstance;
 
     auto impl = aidl::android::hardware::audio::effect::IFactory::fromBinder(ndk::SpAIBinder(implBinder));
+
+    auto clientDeathRecipient = AIBinder_DeathRecipient_new(OnDeath);
+    auto linkToDeathReturnStatus = AIBinder_linkToDeath(impl->asBinder().get(), clientDeathRecipient, static_cast<void*>(new std::string(implInstance)));
+    CHECK_EQ(STATUS_OK, linkToDeathReturnStatus);
+
     auto effectFactory = ndk::SharedRefBase::make<aidl::android::hardware::audio::effect::Factory>(configFile, impl);
 
     std::string serviceName = std::string() + effectFactory->descriptor + "/aml";
